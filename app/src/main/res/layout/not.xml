@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <ImageButton
+        android:id="@+id/sil"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/yuvarlak_kose"
+        android:backgroundTint="@color/purple_500"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:src="@drawable/sil"
+        app:tint="#FFFF0000" />
+
+    <ImageButton
+        android:id="@+id/isim"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/yuvarlak_kose"
+        android:backgroundTint="@color/purple_500"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:src="@drawable/isim"
+        app:tint="#FFFFFFFF" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/yuvarlak_kose"
+        android:orientation="vertical"
+        android:text="text" />
+</LinearLayout>
