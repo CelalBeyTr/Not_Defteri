@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,20 +31,32 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        sharedPreferences = getSharedPreferences("amet", MODE_PRIVATE);
-        recyclerView = findViewById(R.id.liste);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        ArrayList<String> list = new Gson().fromJson(sharedPreferences.getString("notlar", ""), new TypeToken<ArrayList<String>>() {
-        }.getType());
-        adapter = new Adapter(list);
-        recyclerView.setAdapter(adapter);
+
+         sharedPreferences = getSharedPreferences("hıyararda_33" , MODE_PRIVATE);// Shared Preferences oluşturuluyor
+
+        RecyclerView recyclerView = findViewById(R.id.liste); // RecyclerView oluşturuluyor ve layout belirleniyor
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));  // RecyclerView oluşturuluyor ve layout belirleniyor
+
+
+
+       ArrayList<String>  list =  new Gson().fromJson(sharedPreferences.getString("notlarım" , ""), new TypeToken<ArrayList<String>>(){}.getType());   // Shared Preferences'tan notlar okunuyor
+
+             // Adapter oluşturuluyor ve RecyclerView'a set ediliyor
+
+          // Adapter oluşturuluyor ve RecyclerView'a set ediliyor
     }
 
-    public void notEkle(View view) {
-        sharedPreferences.edit().putString("notlar", new Gson().toJson(adapter.notekle("testt"))).apply();
+
+
+    public void notEkle(View view) { // Not ekleme butonuna tıklandığında çalışacak fonksiyon
+        EditText editText = findViewById(R.id.edit_text12); // XML dosyasında tanımladığınız EditText nesnesinin referansı alınır.
+        String yeniNot = editText.getText().toString(); // Kullanıcının girdiği not alınır.
+        adapter.notekle(yeniNot); // Adapter'a yeni not eklenir.
+        sharedPreferences.edit().putString("notlarım", new Gson().toJson(adapter.list)).apply(); // Eklenen notlar Shared Preferences'a yazılır.
     }
 
-    public static class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+
+    public static class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements taze.ahmet.notdefteri.Adapter {
 
 
         ArrayList<String> list = new ArrayList<>();

@@ -21,4 +21,15 @@
         android:layout_margin="30dp"
         app:fabCustomSize="48dp" />
 
+    <EditText
+        android:id="@+id/edit_text12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="25sp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="Metin Giriniz" />
+
+
 </FrameLayout>
