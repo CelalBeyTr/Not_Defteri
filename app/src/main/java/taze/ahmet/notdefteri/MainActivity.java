@@ -1,16 +1,18 @@
 package taze.ahmet.notdefteri;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,88 +29,59 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     Adapter adapter;
 
+    public static void popup(Activity context, String methodisim) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.popup, null);
+        builder.setView(v);
+        AlertDialog ad = builder.create();
+        ad.setCanceledOnTouchOutside(true);
+        ad.show();
+        ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        EditText isimYaz = v.findViewById(R.id.isim);
+        Button iptal = v.findViewById(R.id.iptal);
+        Button onayla = v.findViewById(R.id.onayla);
+        iptal.setOnClickListener(view -> ad.dismiss());
+        onayla.setOnClickListener(view -> {
+            String s = isimYaz.getText().toString();
+            if (!s.isEmpty()) {
+                try {
+                    Class.forName(context.getPackageName() + "." + context.getLocalClassName()).getMethod(methodisim, String.class).invoke(context, s);
+                } catch (IllegalAccessException | InvocationTargetException |
+                         ClassNotFoundException | NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
+                ad.dismiss();
+            } else Toast.makeText(context, "eaikf", Toast.LENGTH_SHORT).show();
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-         sharedPreferences = getSharedPreferences("hıyararda_33" , MODE_PRIVATE);// Shared Preferences oluşturuluyor
-
-        RecyclerView recyclerView = findViewById(R.id.liste); // RecyclerView oluşturuluyor ve layout belirleniyor
+        sharedPreferences = getSharedPreferences("hıyararda_33", MODE_PRIVATE);// Shared Preferences oluşturuluyor
+        recyclerView = findViewById(R.id.liste); // RecyclerView oluşturuluyor ve layout belirleniyor
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));  // RecyclerView oluşturuluyor ve layout belirleniyor
+        ArrayList<String> list = new Gson().fromJson(  //notlari stringden ArrayListe ceviriyor
+                sharedPreferences.getString("notlarım", "") // Shared Preferences'tan notlar okunuyor
+                , new TypeToken<ArrayList<String>>() {
+                }.getType());  //Gson stringi hangi tip nesneye cevirmesini istedgimizi belirtiyor
+        Log.e("testtest", String.valueOf(list));
+        adapter = new Adapter(list);// Adapter oluşturuluyor ve RecyclerView'a set ediliyor
+        recyclerView.setAdapter(adapter); // Adapter oluşturuluyor ve RecyclerView'a takılıyor ediliyor
 
 
-
-       ArrayList<String>  list =  new Gson().fromJson(sharedPreferences.getString("notlarım" , ""), new TypeToken<ArrayList<String>>(){}.getType());   // Shared Preferences'tan notlar okunuyor
-
-             // Adapter oluşturuluyor ve RecyclerView'a set ediliyor
-
-          // Adapter oluşturuluyor ve RecyclerView'a set ediliyor
     }
-
-
 
     public void notEkle(View view) { // Not ekleme butonuna tıklandığında çalışacak fonksiyon
-        EditText editText = findViewById(R.id.edit_text12); // XML dosyasında tanımladığınız EditText nesnesinin referansı alınır.
-        String yeniNot = editText.getText().toString(); // Kullanıcının girdiği not alınır.
-        adapter.notekle(yeniNot); // Adapter'a yeni not eklenir.
-        sharedPreferences.edit().putString("notlarım", new Gson().toJson(adapter.list)).apply(); // Eklenen notlar Shared Preferences'a yazılır.
+        popup(this, "notuEkle");
+
     }
 
+    public void notuEkle(String notisim) { // Not ekleme butonuna tıklandığında çalışacak fonksiyon
+        sharedPreferences.edit().putString("notlarım", new Gson().toJson(adapter.notekle(notisim))).apply(); // Adapter'a yeni not eklenir ve notlar Shared Preferences'a yazılır.
 
-    public static class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements taze.ahmet.notdefteri.Adapter {
-
-
-        ArrayList<String> list = new ArrayList<>();
-
-        Adapter(ArrayList<String> list) {
-            if (list != null) this.list = list;
-        }
-
-        public ArrayList<String> notekle(String s) {
-            list.add(s);
-            notifyItemInserted(list.size());
-            return list;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(((LayoutInflater) parent.getContext().getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.not, null));
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.button.setText(list.get(position));
-            holder.button.setOnClickListener(view -> view.getContext().startActivity(new Intent(view.getContext(), not_yaz.class)));
-            holder.isim.setOnClickListener(view -> {
-
-            });
-            holder.sil.setOnClickListener(view -> {
-                int pos = holder.getLayoutPosition();
-                if (pos == -1) return;
-                list.remove(pos);
-                notifyItemRemoved(pos);
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return list.size();
-        }
-
-        public static class ViewHolder extends RecyclerView.ViewHolder {
-
-            Button button;
-            ImageButton sil;
-            ImageButton isim;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                button = itemView.findViewById(R.id.button);
-                sil = itemView.findViewById(R.id.sil);
-                isim = itemView.findViewById(R.id.isim);
-            }
-        }
     }
+
 }
