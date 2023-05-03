@@ -1,6 +1,6 @@
 package taze.ahmet.notdefteri;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -26,34 +26,45 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
-    SharedPreferences sharedPreferences;
+    public static SharedPreferences sharedPreferences;
     Adapter adapter;
 
-    public static void popup(Activity context, String methodisim) {
+    public static boolean popup(Context context, ArrayList<String> list, String methodisim, String text, int pos) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.popup, null);
         builder.setView(v);
         AlertDialog ad = builder.create();
-        ad.setCanceledOnTouchOutside(true);
+        ad.setCanceledOnTouchOutside(false);
         ad.show();
         ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         EditText isimYaz = v.findViewById(R.id.isim);
         Button iptal = v.findViewById(R.id.iptal);
         Button onayla = v.findViewById(R.id.onayla);
+        isimYaz.setText(text);
         iptal.setOnClickListener(view -> ad.dismiss());
         onayla.setOnClickListener(view -> {
             String s = isimYaz.getText().toString();
-            if (!s.isEmpty()) {
+            if (!s.isEmpty() || list.contains(s)) {
                 try {
-                    Class.forName(context.getPackageName() + "." + context.getLocalClassName()).getMethod(methodisim, String.class).invoke(context, s);
+                    Class.forName(context.getClass().toString().substring(6)).getMethod(methodisim, String.class, Integer.class).invoke(context, s, pos);
                 } catch (IllegalAccessException | InvocationTargetException |
                          ClassNotFoundException | NoSuchMethodException e) {
                     throw new RuntimeException(e);
                 }
                 ad.dismiss();
-            } else Toast.makeText(context, "eaikf", Toast.LENGTH_SHORT).show();
+            } else Toast.makeText(context, "isim bos veya onceki notlarla ayni olamaz!", Toast.LENGTH_LONG).show();
         });
+        return true;
+    }
+
+    public void notudegistir(String notisim, Integer pos) { // Not ekleme butonuna tıklandığında çalışacak fonksiyon
+        String not = sharedPreferences.getString(adapter.list.get(pos), "");
+        sharedPreferences.edit().putString("notlarım", new Gson().toJson(adapter.notdegistir(notisim, pos))).apply(); // Adapter'a yeni not eklenir ve notlar Shared Preferences'a yazılır.
+        Log.e("testtest", adapter.list.get(pos) + "\n" + not);
+        sharedPreferences.edit().remove(adapter.list.get(pos)).apply();
+        sharedPreferences.edit().putString(notisim, not).apply();
+
     }
 
     @Override
@@ -70,16 +81,14 @@ public class MainActivity extends AppCompatActivity {
         Log.e("testtest", String.valueOf(list));
         adapter = new Adapter(list);// Adapter oluşturuluyor ve RecyclerView'a set ediliyor
         recyclerView.setAdapter(adapter); // Adapter oluşturuluyor ve RecyclerView'a takılıyor ediliyor
-
-
     }
 
     public void notEkle(View view) { // Not ekleme butonuna tıklandığında çalışacak fonksiyon
-        popup(this, "notuEkle");
+        popup(this, adapter.list, "notuEkle", "", 0);
 
     }
 
-    public void notuEkle(String notisim) { // Not ekleme butonuna tıklandığında çalışacak fonksiyon
+    public void notuEkle(String notisim, Integer ignored) { // Not ekleme butonuna tıklandığında çalışacak fonksiyon
         sharedPreferences.edit().putString("notlarım", new Gson().toJson(adapter.notekle(notisim))).apply(); // Adapter'a yeni not eklenir ve notlar Shared Preferences'a yazılır.
 
     }

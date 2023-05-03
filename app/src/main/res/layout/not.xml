@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:layout_marginStart="10dp"
     android:layout_marginEnd="10dp"
+    android:orientation="horizontal"
     android:padding="5dp">
 
     <ImageButton
         android:id="@+id/sil"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_gravity="center"
         android:background="@drawable/buton_background"
         android:backgroundTint="@color/purple_500"
         android:orientation="vertical"
-        android:layout_gravity="center"
         android:padding="5dp"
         android:src="@drawable/sil"
         app:tint="#FFFF0000" />
@@ -24,10 +24,10 @@
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:minHeight="48dp"
         android:layout_marginStart="10dp"
         android:background="@drawable/buton_background"
+        android:minHeight="48dp"
         android:orientation="vertical"
-        android:text="text" />
+        android:text="text"
+        android:textAllCaps="false" />
 </LinearLayout>
